@@ -1,0 +1,44 @@
+name: "Hashlock Timestamp"
+description: "Proof of existence for every release: anchors the SHA-256 of your release assets and commit on the Algorand blockchain via x402 (0.005 USDC per proof). Certificates are attached to the release."
+author: "PronodeAlgo"
+branding:
+  icon: "lock"
+  color: "blue"
+
+inputs:
+  wallet-mnemonic:
+    description: "25-word mnemonic of a DEDICATED Algorand wallet holding a little USDC (1 USDC = 200 proofs). Never use your main wallet. Store it as a repository secret."
+    required: true
+  network:
+    description: "algorand network: 'testnet' (free trial, testnet USDC) or 'mainnet'"
+    required: false
+    default: "testnet"
+  attach-certificates:
+    description: "attach the PDF certificates to the release ('true'/'false')"
+    required: false
+    default: "true"
+  github-token:
+    description: "token used to read assets and attach certificates"
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install payment libraries
+      shell: bash
+      run: |
+        mkdir -p "$RUNNER_TEMP/hashlock-action"
+        cp "${{ github.action_path }}/src/index.mjs" "$RUNNER_TEMP/hashlock-action/"
+        cd "$RUNNER_TEMP/hashlock-action"
+        npm init -y --silent >/dev/null
+        npm pkg set type=module >/dev/null
+        npm install --no-audit --no-fund --silent "@x402-avm/fetch@^2.6.1" "@x402-avm/avm@^2.6.1" "algosdk@^3.7.0"
+    - name: Timestamp the release
+      shell: bash
+      env:
+        HASHLOCK_WALLET_MNEMONIC: ${{ inputs.wallet-mnemonic }}
+        HASHLOCK_NETWORK: ${{ inputs.network }}
+        HASHLOCK_ATTACH: ${{ inputs.attach-certificates }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: node "$RUNNER_TEMP/hashlock-action/index.mjs"

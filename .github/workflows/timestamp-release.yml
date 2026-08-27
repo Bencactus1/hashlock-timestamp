@@ -1,0 +1,20 @@
+# La vitrine : ce depot horodate SES PROPRES releases avec sa propre action.
+# L'outil qui se prouve lui-meme — et notre banc d'essai permanent.
+name: timestamp-release
+on:
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # necessaire pour attacher les certificats a la release
+
+jobs:
+  timestamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          wallet-mnemonic: ${{ secrets.HASHLOCK_WALLET }}
+          network: testnet
