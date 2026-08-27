@@ -1,3 +1,5 @@
+[![proof of existence](https://hashlock.pronodealgo.xyz/badge/Bencactus1/hashlock-timestamp.svg)](https://hashlock.pronodealgo.xyz)
+
 # Hashlock Timestamp — proof of existence for every release
 
 Anchor the SHA-256 fingerprint of your release (commit + every published asset)
