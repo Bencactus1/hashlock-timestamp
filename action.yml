@@ -1,5 +1,5 @@
 name: "Hashlock Timestamp"
-description: "Proof of existence for every release: anchor your commit and assets on the Algorand blockchain for 0.005 USDC, get a tamper-evidence badge and a certificate. No account."
+description: "Anchor every release on the Algorand blockchain for 0.005 USDC: tamper-evidence badge, PDF certificate, no account."
 author: "PronodeAlgo"
 branding:
   icon: "lock"
