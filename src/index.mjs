@@ -118,6 +118,12 @@ async function commitDuTag() {
 // ---------------------------------------------------------------------------
 const resultats = [];
 async function horodater(hashHex, nomFichier, taille) {
+  // La preuve est SIGNEE par le wallet de l'action : c'est ce qui lie le depot a
+  // SON proprietaire. Le serveur n'attribue un depot qu'a son premier signataire,
+  // donc personne ne peut horodater au nom du depot d'un autre (ni faire virer
+  // son badge au rouge). Signer ne coute rien de plus.
+  const message = new TextEncoder().encode(`hashlock-algo-v1:timestamp:${hashHex.toLowerCase()}`);
+  const ownerSignature = Buffer.from(algosdk.signBytes(message, compte.sk)).toString("base64");
   const r = await payer(`${API}/timestamp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -127,6 +133,8 @@ async function horodater(hashHex, nomFichier, taille) {
       filesize: taille || undefined,
       githubRepo: DEPOT,
       githubRelease: TAG,
+      ownerAddress: compte.addr.toString(),
+      ownerSignature,
       source: "agent",
     }),
   });
