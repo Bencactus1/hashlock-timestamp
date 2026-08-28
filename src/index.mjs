@@ -75,10 +75,20 @@ async function gh(url, options = {}) {
 }
 
 let release = null;
+let actionEvenement = null;
 try {
   const evenement = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf-8"));
   release = evenement.release || null;
+  actionEvenement = evenement.action || null;
 } catch (_) { /* pas d'evenement lisible : on retombe sur la derniere release */ }
+
+// MODE STRICT (restamp-on-edit: false) : une release EDITEE n'est pas
+// re-prouvee — le badge reste rouge jusqu'a ce que le mainteneur relance le
+// workflow lui-meme. C'est l'alarme qui ne se re-arme pas toute seule.
+if (actionEvenement === "edited" && (process.env.HASHLOCK_RESTAMP || "true") === "false") {
+  console.log("Mode strict : release editee, PAS de re-signature automatique. Le badge restera en alerte jusqu'a un declenchement manuel du workflow (onglet Actions -> Run workflow).");
+  process.exit(0);
+}
 if (!release) {
   console.log("Pas d'evenement release : je prends la derniere release du depot.");
   release = await (await gh(`${API_GH}/repos/${DEPOT}/releases/latest`)).json();

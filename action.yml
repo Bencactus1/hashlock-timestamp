@@ -13,6 +13,10 @@ inputs:
     description: "algorand network: 'testnet' (free trial, testnet USDC) or 'mainnet'"
     required: false
     default: "testnet"
+  restamp-on-edit:
+    description: "what to do when a PUBLISHED release is edited: 'true' (default) re-proves the new state with a dated proof; 'false' = strict mode, the edit is NOT re-proven and the badge stays red until you re-run the workflow yourself"
+    required: false
+    default: "true"
   attach-certificates:
     description: "attach the PDF certificates to the release ('true'/'false')"
     required: false
@@ -40,5 +44,6 @@ runs:
         HASHLOCK_WALLET_MNEMONIC: ${{ inputs.wallet-mnemonic }}
         HASHLOCK_NETWORK: ${{ inputs.network }}
         HASHLOCK_ATTACH: ${{ inputs.attach-certificates }}
+        HASHLOCK_RESTAMP: ${{ inputs.restamp-on-edit }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: node "$RUNNER_TEMP/hashlock-action/index.mjs"
