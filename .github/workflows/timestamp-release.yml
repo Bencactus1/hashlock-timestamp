@@ -22,4 +22,4 @@ jobs:
       - uses: ./
         with:
           wallet-mnemonic: ${{ secrets.HASHLOCK_WALLET }}
-          network: testnet
+          network: mainnet
