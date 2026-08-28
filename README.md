@@ -32,6 +32,7 @@ concurrency:
 
 permissions:
   contents: write   # to attach the certificates to the release
+  id-token: write   # OIDC: proves to the server this workflow really is this repo's
 
 jobs:
   timestamp:
@@ -42,6 +43,11 @@ jobs:
           wallet-mnemonic: ${{ secrets.HASHLOCK_WALLET }}
           network: mainnet
 ```
+
+> **Why `id-token: write`?** GitHub gives each workflow run a signed token
+> certifying it runs in *this* repository. Our server checks it, so only a real
+> workflow in your repo can claim your repo's badge - nobody can impersonate it,
+> not even by timestamping first. It grants no access to your repository.
 
 ## One-time setup (5 minutes)
 

@@ -12,7 +12,8 @@ concurrency:
   group: hashlock-timestamp-${{ github.ref }}
 
 permissions:
-  contents: write   # necessaire pour attacher les certificats a la release
+  contents: write   # attacher les certificats a la release
+  id-token: write  # jeton OIDC : prouve au serveur que ce workflow est bien celui du depot
 
 jobs:
   timestamp:

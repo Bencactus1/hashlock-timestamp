@@ -96,6 +96,22 @@ if (!release) {
 const TAG = release.tag_name;
 console.log(`Release : ${DEPOT} ${TAG} (${(release.assets || []).length} fichier(s) publie(s))`);
 
+// Jeton OIDC : GitHub certifie « cette execution tourne dans DEPOT ». C'est lui
+// qui prouve au serveur la propriete du depot (le wallet ne le peut pas). Requiert
+// `permissions: id-token: write` dans le workflow.
+let oidcToken = null;
+try {
+  const u = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
+  const tk = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+  if (u && tk) {
+    const rep = await fetch(`${u}&audience=hashlock-algo`, { headers: { Authorization: `Bearer ${tk}` } });
+    if (rep.ok) oidcToken = (await rep.json()).value || null;
+  }
+} catch (_) { /* pas d'OIDC : la preuve part quand meme, mais le badge ne la comptera pas */ }
+if (!oidcToken) {
+  console.log("::warning::jeton OIDC absent (ajoutez 'permissions: id-token: write' au workflow). Les preuves seront ecrites et payees, mais le badge ne les reconnaitra pas comme propriete du depot.");
+}
+
 // ---------------------------------------------------------------------------
 // Resolution du commit vise par le tag (target_commitish peut etre une branche)
 // ---------------------------------------------------------------------------
@@ -133,6 +149,7 @@ async function horodater(hashHex, nomFichier, taille) {
       filesize: taille || undefined,
       githubRepo: DEPOT,
       githubRelease: TAG,
+      githubOidc: oidcToken || undefined,
       ownerAddress: compte.addr.toString(),
       ownerSignature,
       source: "agent",
