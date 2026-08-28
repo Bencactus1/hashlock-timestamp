@@ -76,11 +76,19 @@ async function gh(url, options = {}) {
 
 let release = null;
 let actionEvenement = null;
+let depotPrive = false;
 try {
   const evenement = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf-8"));
   release = evenement.release || null;
   actionEvenement = evenement.action || null;
+  // Un depot prive/interne est horodate (hash on-chain + certificat) mais son
+  // nom n'est ni stocke ni affiche cote serveur : pas de badge public. On le
+  // dit clairement pour eviter la surprise « pourquoi mon badge reste vide ».
+  depotPrive = !!(evenement.repository && evenement.repository.private);
 } catch (_) { /* pas d'evenement lisible : on retombe sur la derniere release */ }
+if (depotPrive) {
+  console.log("Depot PRIVE : la preuve est ecrite sur Algorand et le certificat est fourni, mais par confidentialite le nom du depot n'est pas publie et il n'y a pas de badge public. (C'est voulu : un depot prive ne doit rien exposer.)");
+}
 
 // MODE STRICT (restamp-on-edit: false) : une release EDITEE n'est pas
 // re-prouvee — le badge reste rouge jusqu'a ce que le mainteneur relance le

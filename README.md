@@ -153,6 +153,12 @@ runner. The files stay on GitHub.
 the badge stays green and every version keeps a dated proof. Use
 `restamp-on-edit: false` for a strict mode that stays red until you re-run.
 
+**Can I use it on a private repository?** Yes, but by design a private repo gets
+**no public badge**: the proof is still written on-chain and the certificate is
+still produced, but the repository's name is never stored or displayed on our
+side. Public badges are for public repositories only - a private repo must never
+leak its name, releases or file names.
+
 **Does it work for organizations and multi-contributor repos?** Yes. Ownership
 is tied to the repository itself (via OIDC), not to a person or a wallet — any
 collaborator's run counts, and no one outside the repo can claim it.
