@@ -149,7 +149,8 @@ if (sha) {
 // 2. Chaque fichier publie de la release, hache en STREAMING (jamais tout en
 //    memoire : les gros binaires passent sans peser).
 // ---------------------------------------------------------------------------
-for (const asset of release.assets || []) {
+const SUFFIXE_CERT = ".hashlock-certificate.pdf";
+for (const asset of (release.assets || []).filter((a) => !a.name.endsWith(SUFFIXE_CERT))) {
   const r = await gh(asset.url, { headers: { Accept: "application/octet-stream" } });
   const h = createHash("sha256");
   for await (const morceau of r.body) h.update(morceau);
@@ -164,22 +165,30 @@ if (resultats.length === 0) echec("rien a prouver : ni commit resolu, ni fichier
 // 3. Attacher les certificats PDF a la release (remplace un attachement
 //    homonyme laisse par un run precedent).
 // ---------------------------------------------------------------------------
-if (ATTACHER) {
+const rienDeNeuf = !resultats.some((r) => r.neuf);
+if (rienDeNeuf) {
+  console.log("Rien de neuf a prouver : certificats deja en place, on ne re-attache pas (c'est ce qui coupe la cascade d'evenements 'edited').");
+}
+if (ATTACHER && !rienDeNeuf) {
   const urlDepot = `${API_GH}/repos/${DEPOT}/releases/${release.id}`;
   const existants = (await (await gh(`${urlDepot}/assets?per_page=100`)).json());
   for (const res of resultats) {
     if (!res.certificat) continue;
     const nomCert = `${res.nom.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 80)}.hashlock-certificate.pdf`;
-    const doublon = existants.find((a) => a.name === nomCert);
-    if (doublon) await gh(doublon.url, { method: "DELETE" });
-    const upload = release.upload_url.replace(/\{.*\}$/, "") + `?name=${encodeURIComponent(nomCert)}`;
-    const pdf = Buffer.from(res.certificat, "base64");
-    await gh(upload, {
-      method: "POST",
-      headers: { "Content-Type": "application/pdf", "Content-Length": String(pdf.length) },
-      body: pdf,
-    });
-    console.log(`  certificat attache : ${nomCert}`);
+    try {
+      const doublon = existants.find((a) => a.name === nomCert);
+      if (doublon) await gh(doublon.url, { method: "DELETE" });
+      const upload = release.upload_url.replace(/\{.*\}$/, "") + `?name=${encodeURIComponent(nomCert)}`;
+      const pdf = Buffer.from(res.certificat, "base64");
+      await gh(upload, {
+        method: "POST",
+        headers: { "Content-Type": "application/pdf", "Content-Length": String(pdf.length) },
+        body: pdf,
+      });
+      console.log(`  certificat attache : ${nomCert}`);
+    } catch (e) {
+      console.log(`::warning::certificat non attache (${nomCert}) : ${e.message.slice(0, 120)} — la preuve on-chain, elle, est faite.`);
+    }
   }
 }
 

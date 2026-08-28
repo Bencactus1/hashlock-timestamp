@@ -6,6 +6,11 @@ on:
     types: [published, edited]
   workflow_dispatch:
 
+# Une seule execution a la fois : les evenements 'edited' en rafale (nos
+# propres attachements de certificats) se serialisent au lieu de se battre.
+concurrency:
+  group: hashlock-timestamp-${{ github.ref }}
+
 permissions:
   contents: write   # necessaire pour attacher les certificats a la release
 
