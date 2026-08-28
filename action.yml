@@ -1,5 +1,5 @@
 name: "Hashlock Timestamp"
-description: "Proof of existence for every release (requires the workflow to grant `permissions: id-token: write` and `contents: write`): anchors the SHA-256 of your release assets and commit on the Algorand blockchain via x402 (0.005 USDC per proof). Certificates are attached to the release."
+description: "Proof of existence for every release: anchor your commit and assets on the Algorand blockchain for 0.005 USDC, get a tamper-evidence badge and a certificate. No account."
 author: "PronodeAlgo"
 branding:
   icon: "lock"
