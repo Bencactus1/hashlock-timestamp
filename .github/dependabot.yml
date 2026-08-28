@@ -1,0 +1,13 @@
+# Dependabot surveille les librairies figees et previent (par mail au
+# proprietaire du depot) des le qu'une mise a jour ou une alerte de securite
+# les concerne. Une mise a jour = une Pull Request a relire ; on rebuild alors
+# le bundle (BUILD.md) avant de fusionner. Rien ne se met a jour tout seul.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"

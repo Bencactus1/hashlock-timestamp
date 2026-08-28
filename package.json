@@ -1,0 +1,12 @@
+{
+  "name": "hashlock-timestamp",
+  "version": "0.3.1",
+  "private": true,
+  "description": "GitHub Action: proof of existence for every release on Algorand via x402. The action runs the frozen bundle dist/index.mjs; this manifest pins the exact library versions for reproducible builds (see BUILD.md) and lets Dependabot watch them for updates and security advisories.",
+  "license": "MIT",
+  "dependencies": {
+    "@x402-avm/fetch": "2.6.1",
+    "@x402-avm/avm": "2.6.1",
+    "algosdk": "3.7.0"
+  }
+}
