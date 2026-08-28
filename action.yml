@@ -29,15 +29,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install payment libraries
-      shell: bash
-      run: |
-        mkdir -p "$RUNNER_TEMP/hashlock-action"
-        cp "${{ github.action_path }}/src/index.mjs" "$RUNNER_TEMP/hashlock-action/"
-        cd "$RUNNER_TEMP/hashlock-action"
-        npm init -y --silent >/dev/null
-        npm pkg set type=module >/dev/null
-        npm install --no-audit --no-fund --silent "@x402-avm/fetch@^2.6.1" "@x402-avm/avm@^2.6.1" "algosdk@^3.7.0"
+    # No download at runtime: the payment libraries are bundled, frozen, into
+    # dist/index.mjs (built once with @vercel/ncc, reviewed, committed). This
+    # closes the supply-chain window - nothing is fetched from npm when the
+    # action runs. To update the libraries: rebuild the bundle and commit it.
     - name: Timestamp the release
       shell: bash
       env:
@@ -46,4 +41,4 @@ runs:
         HASHLOCK_ATTACH: ${{ inputs.attach-certificates }}
         HASHLOCK_RESTAMP: ${{ inputs.restamp-on-edit }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
-      run: node "$RUNNER_TEMP/hashlock-action/index.mjs"
+      run: node "${{ github.action_path }}/dist/index.mjs"
